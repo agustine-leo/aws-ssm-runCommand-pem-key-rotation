@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "2.2",
+  "description": "Use this document to run EC2 Pem Key Rotation.",
+  "parameters": {
+    "Version": {
+      "description": "(Required) Specify the Pem Key Version",
+      "type": "String"
+    },
+    "SourceType": {
+      "description": "(Required) The Download Source [default: HTTP]",
+      "type": "String",
+	  "default": "HTTP"
+    },
+	"SourceInfo": {
+		"description": "(Required) The url of the key-rotation package.",
+		"type": "String"
+	},
+    "TimeoutSeconds": {
+      "type": "String",
+      "description": "(Optional) The time in seconds for a command to be completed before it is considered to have failed.",
+      "default": "3600"
+    }
+  },
+  "mainSteps": [
+    {
+      "action": "aws:downloadContent",
+      "name": "downloadContent",
+      "inputs": {
+        "SourceType": "{{ SourceType }}",
+		"SourceInfo": "{{ SourceInfo }}",
+		"destinationPath": "key-rotate.py"
+      }
+    },
+    {
+      "action": "aws:runShellScript",
+      "name": "runShellScript",
+      "inputs": {
+        "timeoutSeconds": "{{ TimeoutSeconds }}",
+        "runCommand": [
+				"#!/bin/bash",
+				"if [ -z $(python3 -c 'import pip; print(pip.__version__)') ]; then",
+				"	echo \"Installing python3-pip...\" >&2",
+				"	sudo apt update",
+				"	sudo apt install python3-pip -y",
+				"fi",
+				"if ! pip3 show virtualenv &>/dev/null; then",
+				"	echo \"Install python3 virtualenv module...\" >&2",
+				"	pip3 install virtualenv",
+				"fi",
+				"echo \"Running command in `pwd`\" >&2",
+				"echo \"Setup virtualenv\"",
+				"python3 -m virtualenv venv >&2",
+				"echo \"Activate environment\"",
+				"source ./venv/bin/source >&2",
+				"echo \"Install boto3 & requests\"",
+				"pip3 install boto3 requests",
+				"echo \"Run key-rotate.py script.\"",
+				"python3 key-rotate.py \"{{Version}}\"",
+				"echo \"Clean up\"",
+				"echo \"Deactivate virtualenv\"",
+				"deactivate && rm -rf ./venv/",
+				"echo \"Uninstall python3 virtualenv module...\"",
+				"pip3 uninstall virtualenv -y",
+				"echo \"Done\""
+		]
+      }
+    }
+  ]
+}
