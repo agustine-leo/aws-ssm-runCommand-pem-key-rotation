@@ -7,14 +7,14 @@
       "type": "String"
     },
     "SourceType": {
-      "description": "(Required) The Download Source [default: Git]",
+      "description": "(Required) The Download Source [default: HTTP]",
       "type": "String",
-	  "default": "GitHub"
+	  "default": "HTTP"
     },
 	"SourceInfo": {
 		"description": "(Required) The url of the key-rotation package.",
 		"type": "String",
-		"default": "{\"owner\":\"agustine-leo\",\"repository\":\"aws-ssm-runCommand-pem-key-rotation\",\"getOptions\":\"branch:refs/head/main\"}"
+		"default": "{\"url\": \"https://raw.githubusercontent.com/agustine-leo/aws-ssm-runCommand-pem-key-rotation/main/key_rotate.tar\"}"
 	},
     "TimeoutSeconds": {
       "type": "String",
