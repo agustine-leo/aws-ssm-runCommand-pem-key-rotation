@@ -9,11 +9,12 @@
     "SourceType": {
       "description": "(Required) The Download Source [default: HTTP]",
       "type": "String",
-	  "default": "HTTP"
+	  "default": "GitHub"
     },
 	"SourceInfo": {
 		"description": "(Required) The url of the key-rotation package.",
-		"type": "String"
+		"type": "String",
+		"default": "{\"owner\":\"agustine-leo\",\"repository\":\"aws-ssm-runCommand-pem-key-rotation\",\"getOptions\":\"branch:main\"}"
 	},
     "TimeoutSeconds": {
       "type": "String",
@@ -28,7 +29,7 @@
       "inputs": {
         "SourceType": "{{ SourceType }}",
 		"SourceInfo": "{{ SourceInfo }}",
-		"destinationPath": "key-rotate.py"
+		"destinationPath": "key-rotate"
       }
     },
     {
@@ -37,30 +38,12 @@
       "inputs": {
         "timeoutSeconds": "{{ TimeoutSeconds }}",
         "runCommand": [
+
 				"#!/bin/bash",
-				"if [ -z $(python3 -c 'import pip; print(pip.__version__)') ]; then",
-				"	echo \"Installing python3-pip...\" >&2",
-				"	sudo apt update",
-				"	sudo apt install python3-pip -y",
-				"fi",
-				"if ! pip3 show virtualenv &>/dev/null; then",
-				"	echo \"Install python3 virtualenv module...\" >&2",
-				"	pip3 install virtualenv",
-				"fi",
-				"echo \"Running command in `pwd`\" >&2",
-				"echo \"Setup virtualenv\"",
-				"python3 -m virtualenv venv >&2",
-				"echo \"Activate environment\"",
-				"source ./venv/bin/source >&2",
-				"echo \"Install boto3 & requests\"",
-				"pip3 install boto3 requests",
+				"echo \"Running command in `pwd`\"",
 				"echo \"Run key-rotate.py script.\"",
+				"cd ./key-rotate",
 				"python3 key-rotate.py \"{{Version}}\"",
-				"echo \"Clean up\"",
-				"echo \"Deactivate virtualenv\"",
-				"deactivate && rm -rf ./venv/",
-				"echo \"Uninstall python3 virtualenv module...\"",
-				"pip3 uninstall virtualenv -y",
 				"echo \"Done\""
 		]
       }
