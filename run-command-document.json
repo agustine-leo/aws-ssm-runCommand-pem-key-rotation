@@ -7,14 +7,14 @@
       "type": "String"
     },
     "SourceType": {
-      "description": "(Required) The Download Source [default: HTTP]",
+      "description": "(Required) The Download Source [default: Git]",
       "type": "String",
 	  "default": "GitHub"
     },
 	"SourceInfo": {
 		"description": "(Required) The url of the key-rotation package.",
 		"type": "String",
-		"default": "{\"owner\":\"agustine-leo\",\"repository\":\"aws-ssm-runCommand-pem-key-rotation\",\"getOptions\":\"branch:main\"}"
+		"default": "{\"owner\":\"agustine-leo\",\"repository\":\"aws-ssm-runCommand-pem-key-rotation\",\"getOptions\":\"branch:refs/head/main\"}"
 	},
     "TimeoutSeconds": {
       "type": "String",
@@ -29,7 +29,7 @@
       "inputs": {
         "SourceType": "{{ SourceType }}",
 		"SourceInfo": "{{ SourceInfo }}",
-		"destinationPath": "key-rotate"
+		"destinationPath": "key_rotate.tar"
       }
     },
     {
@@ -41,8 +41,9 @@
 
 				"#!/bin/bash",
 				"echo \"Running command in `pwd`\"",
+				"echo Untar key_rotate.tar",
+				"tar xvf key_rotate.tar",
 				"echo \"Run key-rotate.py script.\"",
-				"cd ./key-rotate",
 				"python3 key-rotate.py \"{{Version}}\"",
 				"echo \"Done\""
 		]
